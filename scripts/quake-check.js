@@ -164,4 +164,4 @@ setInterval(async function () {
         announceEarthquake(message);
         showAlert(message);
     }
-}, 30000); // Check every 60 seconds
+}, 10000); // Check every 10 seconds
