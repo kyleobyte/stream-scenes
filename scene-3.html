@@ -386,19 +386,19 @@
         }
 
         // Function to simulate a new earthquake for testing
-        function simulateNewEarthquake() {
-            const testQuake = {
-                time: Math.floor(Date.now() / 1000), // Current time in seconds
-                lat: "63.85",
-                lon: "-22.45",
-                depth: "7.4",
-                magnitude: "1.0",
-                magnitude_type: "autmag"
-            };
-            updateQuakesContainer(testQuake, true);
-            playEarthquakeAlert();
-            console.log('Simulated New Earthquake:', testQuake); // Debugging: Log the simulated quake
-        }
+        //        function simulateNewEarthquake() {
+        //            const testQuake = {
+        //                time: Math.floor(Date.now() / 1000), // Current time in seconds
+        //                lat: "63.85",
+        //                lon: "-22.45",
+        //                depth: "7.4",
+        //                magnitude: "1.0",
+        //                magnitude_type: "autmag"
+        //            };
+        //            updateQuakesContainer(testQuake, true);
+        //            playEarthquakeAlert();
+        //            console.log('Simulated New Earthquake:', testQuake); // Debugging: Log the simulated quake
+        //        }
 
         // Fetch and process earthquake data on page load
         window.addEventListener('load', async function () {
