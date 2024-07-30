@@ -43,12 +43,35 @@ function createMapImageUrl(lat, lon) {
     return `https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=600&height=400&center=lonlat:${lon},${lat}&zoom=10&marker=lonlat:${lon},${lat};color:%23ff0000;size:medium&apiKey=${geoapifyApiKey}`;
 }
 
+// Function to format the quake time
+function formatQuakeTime(unixTime) {
+    const options = {
+        timeZone: 'Atlantic/Reykjavik',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+    };
+    const quakeDate = new Date(unixTime * 1000);
+    const formattedDate = quakeDate.toLocaleString('en-US', options);
+
+    // Split date and time components and rearrange them
+    const [date, time] = formattedDate.split(', ');
+    const [month, day, year] = date.split('/');
+    const formattedTime = `${time.replace(/\b0/g, '')} - ${day}/${month}/${year}`;
+
+    return formattedTime;
+}
+
 // Function to update the quakes container with the last quake information
 function updateQuakesContainer(quake, isNew) {
     const quakesContainer = document.getElementById(quakesContainerId);
     if (!quakesContainer) return;
 
-    const quakeTime = new Date(quake.time * 1000).toLocaleString();
+    const quakeTime = formatQuakeTime(quake.time);
     const magnitudeUnit = quake.magnitude_type === 'autmag' ? 'aM' : 'mlw';
     const quakeInfo = `
         <div class="quake-info ${isNew ? 'new-quake' : 'last-quake'}">
@@ -141,4 +164,4 @@ setInterval(async function () {
         announceEarthquake(message);
         showAlert(message);
     }
-}, 60000); // Check every 60 seconds
+}, 30000); // Check every 60 seconds
