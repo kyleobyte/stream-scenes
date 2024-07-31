@@ -1,0 +1,13 @@
+Feature Add List
+- Tidy Up EQ Info Box
+- Auto Reload the RSHAKE iFrames every - 10 mins
+- Different Voice alerts dependent on quake size
+- Chat command for refresh
+- A way to manage multiple alerts in quick succession
+- 24h time on the Earthquake Info Box
+
+
+Fix List
+- Figure out how to centre amd stretch JUST the rshake data - hide the embedded headers etc.
+- Remove auto alert test on scene load
+
