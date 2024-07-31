@@ -52,7 +52,7 @@
 
         .box {
             box-sizing: border-box;
-            border-radius: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
@@ -100,10 +100,10 @@
             left: 0px;
             background-color: white;
             color: black;
-            padding: 10px 20px;
-            border-radius: 0px 20px 20px 20px;
+            padding: 5px 10px;
+            border-radius: 0px 10px 10px 10px;
             font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-            font-size: 20px;
+            font-size: 16px;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
@@ -125,7 +125,7 @@
             justify-content: space-between;
             background-color: #000;
             color: white;
-            border-radius: 20px;
+            border-radius: 10px;
             padding: 20px;
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
@@ -151,6 +151,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding-left: 60px;
         }
 
         .quake-map {
@@ -171,33 +172,23 @@
         }
 
         .quake-info img {
-            width: 100%;
+            width: 120%;
             height: auto;
             border-radius: 10px;
         }
 
         .shake {
-            margin-top: -60px;
-            width: 115%;
-            border-radius: 20px;
-            margin-left: -78px;
+            margin-top: -62px;
+            width: 118%;
+            border-radius: 10px;
+            margin-left: -94px;
+            height: 138%;
         }
 
-        .test-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 10px 20px;
-            background-color: blue;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
 
         .current-time {
             position: absolute;
-            top: 50%;
+            top: 35px;
             left: 50%;
             transform: translate(-50%, -50%);
             color: rgb(0, 0, 0);
@@ -205,7 +196,7 @@
             font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
             background-color: rgb(255, 255, 255);
             padding: 0px 20px 10px;
-            border-radius: 20px 20px 20px 20px;
+            border-radius: 0px 0px 10px 10px;
             text-align: center;
             min-width: 90px;
         }
@@ -254,14 +245,15 @@
         <div class="right-column">
             <div class="box" id="quakes"></div>
             <div class="box">
-                <iframe class="video shake" src="https://dataview.raspberryshake.org/#/embed/AM/R5D8E/00/EHZ"
+                <iframe id="R252C" class="video shake" src="https://dataview.raspberryshake.org/#/embed/AM/R252C/00/EHZ"
                     allow="autoplay; encrypted-media" allowfullscreen></iframe>
                 <div class="label">R252C | Grindavik</div>
             </div>
             <div class="box">
-                <iframe class="video shake" src="https://dataview.raspberryshake.org/#/embed/AM/R252C/00/EHZ"
-                    allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                <div class="label">R5D8E | Þorbjörn</div>
+                <iframe id="R5D8E" class="video shake shake-last"
+                    src="https://dataview.raspberryshake.org/#/embed/AM/R5D8E/00/EHZ" allow="autoplay; encrypted-media"
+                    allowfullscreen></iframe>
+                <div class="label">R5D8E | Þorbjörn</div>/
             </div>
         </div>
         <div class="alert-overlay" id="alertOverlay"></div>
@@ -279,7 +271,7 @@
         const maxLon = -22.35;
         const quakesContainerId = 'quakes';
         const geoapifyApiKey = 'fe520527fd824957b7ff4ca2ede7f36a'; // Your Geoapify API key
-        let lastQuakeTime = 0; // Track the last detected quake time
+        let lastQuakeTime = parseInt(localStorage.getItem('lastQuakeTime')) || 0; // Retrieve last quake time from localStorage
 
         // Function to fetch earthquake data
         async function fetchEarthquakeData() {
@@ -329,7 +321,7 @@
                 hour: 'numeric',
                 minute: 'numeric',
                 second: 'numeric',
-                hour12: true,
+                hour12: false, // Use 24-hour format
             };
             const quakeDate = new Date(unixTime * 1000);
             const formattedDate = quakeDate.toLocaleString('en-US', options);
@@ -385,21 +377,6 @@
             }
         }
 
-        // Function to simulate a new earthquake for testing
-        //        function simulateNewEarthquake() {
-        //            const testQuake = {
-        //                time: Math.floor(Date.now() / 1000), // Current time in seconds
-        //                lat: "63.85",
-        //                lon: "-22.45",
-        //                depth: "7.4",
-        //                magnitude: "1.0",
-        //                magnitude_type: "autmag"
-        //            };
-        //            updateQuakesContainer(testQuake, true);
-        //            playEarthquakeAlert();
-        //            console.log('Simulated New Earthquake:', testQuake); // Debugging: Log the simulated quake
-        //        }
-
         // Fetch and process earthquake data on page load
         window.addEventListener('load', async function () {
             await checkForNewQuakes();
@@ -422,6 +399,7 @@
                     updateQuakesContainer(latestQuake, true);
                     playEarthquakeAlert();
                     lastQuakeTime = latestQuake.time; // Update last quake time
+                    localStorage.setItem('lastQuakeTime', lastQuakeTime); // Store last quake time in localStorage
                 } else {
                     updateQuakesContainer(latestQuake, false);
                 }
@@ -443,6 +421,28 @@
 
         // Update the current time every second
         setInterval(updateTime, 1000);
+    </script>
+    <script>
+        // Function to reload an iframe by its ID
+        function reloadIframeById(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe) {
+                const src = iframe.src;
+                iframe.src = ''; // Clear the src attribute to force reload
+                setTimeout(() => {
+                    iframe.src = src; // Reset the src attribute to the original value after a short delay
+                }, 100); // Delay of 100 milliseconds
+            }
+        }
+
+        // Set interval to reload the first iframe every 5 minutes (300000 milliseconds)
+        setInterval(() => reloadIframeById('R252C'), 300000); // Reload every 5 minutes
+
+        // Set a timeout to start reloading the second iframe after 2.5 minutes (150000 milliseconds), then every 5 minutes
+        setTimeout(() => {
+            reloadIframeById('R5D8E'); // Initial reload after 2.5 minutes
+            setInterval(() => reloadIframeById('R5D8E'), 300000); // Reload every 5 minutes
+        }, 150000); // Initial delay of 2.5 minutes
     </script>
 </body>
 
