@@ -9,10 +9,23 @@
 
 
 
-Done
+Tasks done
 - Auto Reload the RSHAKE iFrames every - 5 mins 
 - 24h time on the Earthquake Info Box
 - Tidy Up EQ Info Box
 - Remove auto alert test on scene load
-- Figure out how to centre amd stretch JUST the rshake data - hide the embedded headers etc.
+- Centre and stretch JUST the rshake data
 
+
+
+
+Last quake
+Time: 23:37:52 - 30/7/2024
+Magnitude: -1.4 aM
+Depth: 1.7 km
+Location: (63.867, -22.425)
+
+
+Hey! Looks like there's a new quake {current time - quake time} minutes ago about {distance} {direction) from {place}.
+
+Hey! Looks like there's a new quake four minutes ago about one point five kilometers east of the blue lagoon.
