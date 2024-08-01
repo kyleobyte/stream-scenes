@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Streaming Layout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
     <style>
         body,
         html {
@@ -31,7 +35,7 @@
             right: 0;
             /* horizontal center */
             display: flex;
-            padding: 20px;
+            /*padding: 20px;*/
             box-sizing: border-box;
         }
 
@@ -102,8 +106,9 @@
             color: black;
             padding: 5px 10px;
             border-radius: 0px 10px 10px 10px;
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-family: "Open Sans", sans-serif;
             font-size: 16px;
+            font-weight: 800;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
@@ -128,7 +133,7 @@
             border-radius: 10px;
             padding: 20px;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: "Open Sans", sans-serif;
         }
 
         .quake-info.new-quake {
@@ -193,17 +198,19 @@
             transform: translate(-50%, -50%);
             color: rgb(0, 0, 0);
             font-size: 26px;
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 800;
             background-color: rgb(255, 255, 255);
             padding: 0px 20px 10px;
             border-radius: 0px 0px 10px 10px;
             text-align: center;
-            min-width: 90px;
+            min-width: 120px;
         }
 
         .time-label {
             font-size: 16px;
-            font-family: 'Arial Narrow Bold', sans-serif;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -231,9 +238,9 @@
             </div>
             <div class="box">
                 <iframe class="video"
-                    src="https://www.youtube.com/embed/N59nQAU_tSM?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
+                    src="https://www.youtube.com/embed/y2vjVxAQ7NA?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
                     allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                <div class="label">Svartsengi Power Plant | mbl.is</div>
+                <div class="label">Sandhóll | mbl.is</div>
             </div>
             <div class="box">
                 <iframe class="video"
