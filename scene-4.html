@@ -485,37 +485,71 @@
         setInterval(updateTime, 1000);
     </script>
     <script>
-        // Function to fetch and populate video data from an external JSON file
+        // Object to store current video data for comparison
+        let currentVideoData = {};
+
+        // Function to fetch and populate video data from the JSON file
         async function fetchAndPopulateVideos() {
             try {
-                // Fetch the JSON file from the scripts folder
-                const response = await fetch('scripts/video-list.json');
+                // Fetch the JSON file from GitHub Pages
+                const response = await fetch(`https://kyleobyte.github.io/stream-scenes/scripts/video-list.json?cache-bust=${new Date().getTime()}`);
+
+                // Check if the response is OK (status 200)
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
                 const videoData = await response.json();
 
-                const leftColumn = document.querySelector('.left-column');
-                leftColumn.innerHTML = ''; // Clear any existing content
+                // Check for changes in video data
+                updateChangedVideos(videoData);
 
-                videoData.forEach(video => {
-                    const videoBox = document.createElement('div');
-                    videoBox.className = 'box';
-                    videoBox.innerHTML = `
-                        <iframe class="video"
-                            src="https://www.youtube.com/embed/${video.embedCode}?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
-                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                        <div class="label">${video.label}</div>
-                    `;
-                    leftColumn.appendChild(videoBox);
-                });
             } catch (error) {
                 console.error('Error fetching video data:', error);
             }
         }
 
-        // Populate videos on page load
+        // Function to update only the changed videos
+        function updateChangedVideos(newVideoData) {
+            const leftColumn = document.querySelector('.left-column');
+
+            newVideoData.forEach((newVideo, index) => {
+                // If the video is different from the current video data, update it
+                if (currentVideoData[index]?.embedCode !== newVideo.embedCode || currentVideoData[index]?.label !== newVideo.label) {
+                    // Find the video container
+                    let videoBox = leftColumn.querySelector(`.box[data-index='${index}']`);
+
+                    if (!videoBox) {
+                        // Create a new video box if it doesn't exist
+                        videoBox = document.createElement('div');
+                        videoBox.className = 'box';
+                        videoBox.dataset.index = index;
+                        leftColumn.appendChild(videoBox);
+                    }
+
+                    // Update the video box content
+                    videoBox.innerHTML = `
+                    <iframe class="video"
+                        src="https://www.youtube.com/embed/${newVideo.embedCode}?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
+                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    <div class="label">${newVideo.label}</div>
+                `;
+                }
+            });
+
+            // Update the current video data for future comparisons
+            currentVideoData = newVideoData;
+        }
+
+        // Initial population of videos on page load
         window.addEventListener('load', function () {
             fetchAndPopulateVideos();
+
+            // Set an interval to check for updates every 60 seconds
+            setInterval(fetchAndPopulateVideos, 60000); // 60000 milliseconds = 60 seconds
         });
     </script>
+
 
 </body>
 
