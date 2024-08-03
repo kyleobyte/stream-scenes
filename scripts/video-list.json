@@ -8,15 +8,15 @@
         "label": "Sýlingarfell | RUV"
     },
     {
-        "embedCode": "1TWiAPdGg5k",
-        "label": "Grindavik | Vísir"
-    },
-    {
         "embedCode": "VIs83vmfZCk",
         "label": "Hagafell | RUV"
     },
     {
         "embedCode": "Bqudj0x0POA",
         "label": "Þorbjörn | RUV"
+    }
+        {
+        "embedCode": "1TWiAPdGg5k",
+        "label": "Grindavik | Vísir"
     }
 ]
