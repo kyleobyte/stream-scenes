@@ -4,149 +4,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distance and Direction Calculation with Text-to-Speech</title>
+    <title>Streaming Layout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        .container {
+            width: calc(100vw - 40px);
+            height: calc(56.25vw - 40px);
+            /* 16:9 Aspect Ratio */
+            max-height: calc(100vh - 40px);
+            max-width: calc(177.78vh - 40px);
+            /* 16:9 Aspect Ratio */
+            margin: auto;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            /* vertical center */
+            left: 0;
+            right: 0;
+            /* horizontal center */
+            display: flex;
+            /*padding: 20px;*/
+            box-sizing: border-box;
+        }
+
+        .left-column,
+        .right-column {
+            display: flex;
+            flex-wrap: wrap;
+            width: calc(50% - 10px);
+        }
+
+        .left-column {
+            margin-right: 10px;
+        }
+
+        .right-column {
+            margin-left: 10px;
+        }
+
+        .box {
+            box-sizing: border-box;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-column .box {
+            width: calc(50% - 10px);
+            height: calc(25% - 10px);
+        }
+
+        .left-column .box:nth-child(odd) {
+            margin-right: 10px;
+        }
+
+        .left-column .box:nth-child(even) {
+            margin-left: 10px;
+        }
+
+        .left-column .box:last-child {
+            width: 100%;
+            height: calc(50% - 10px);
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .right-column .box {
+            width: 100%;
+            height: calc(33.33% - 13.33px);
+        }
+
+        .right-column .box:last-child {
+            margin-bottom: 0;
+        }
+
+        .video {
+            width: 110%;
+            height: 110%;
+            margin: -20px;
+            border: 0;
+        }
+
+        .label {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            background-color: white;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 0px 10px 10px 10px;
+            font-family: "Open Sans", sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .alert-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 24px;
+            display: none;
+        }
+
+        .quake-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: #000;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: "Open Sans", sans-serif;
+        }
+
+        .quake-info.new-quake {
+            background-color: orange;
+            color: #000;
+        }
+
+        .quake-info.last-quake {
+            background-color: #1b1c1d;
+            color: white;
+        }
+
+        .quake-text,
+        .quake-map {
+            flex: 1;
+        }
+
+        .quake-text {
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 60px;
+        }
+
+        .quake-map {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: -20px;
+        }
+
+        .quake-info h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .quake-info p {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+
+        .quake-info img {
+            width: 120%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .shake {
+            margin-top: -62px;
+            width: 118%;
+            border-radius: 10px;
+            margin-left: -94px;
+            height: 138%;
+        }
+
+
+        .current-time {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgb(0, 0, 0);
+            font-size: 26px;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 800;
+            background-color: rgb(255, 255, 255);
+            padding: 0px 20px 10px;
+            border-radius: 0px 0px 10px 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .time-label {
+            font-size: 16px;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 600;
+        }
+
+        .gridlines {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            height: 100%;
+            width: 0px;
+            top: 0px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .one-min {
+            left: 90%;
+            border: 1px dashed;
+        }
+
+        .two-min {
+            left: 80%;
+            border: 1px dashed;
+        }
+
+        .three-min {
+            left: 70%;
+            border: 1px dashed;
+        }
+
+        .four-min {
+            left: 60%;
+            border: 1px dashed;
+        }
+
+        .five-min {
+            left: 50%;
+            color: #ffffff;
+            font-family: "Open Sans", sans-serif;
+        }
+
+        .six-min {
+            left: 40%;
+            border: 1px dashed;
+        }
+
+        .seven-min {
+            left: 30%;
+            border: 1px dashed;
+        }
+
+        .eight-min {
+            left: 20%;
+            border: 1px dashed;
+        }
+
+        .nine-min {
+            left: 10%;
+            border: 1px dashed;
+        }
+
+        .five-min-label {
+            position: absolute;
+            left: 51%;
+            top: 5px;
+            color: rgb(255, 255, 255);
+            font-family: "Open Sans", sans-serif;
+        }
+    </style>
 </head>
 
 <body>
-    <div>
-        <p id="place-info"></p>
+    <div class="container">
+        <div class="left-column">
+            <!-- Boxes will be dynamically populated here -->
+        </div>
+        <div class="right-column">
+            <div class="box" id="quakes"></div>
+            <div class="box">
+                <iframe id="R252C" class="video shake" src="https://dataview.raspberryshake.org/#/embed/AM/R252C/00/EHZ"
+                    allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <div class="label">R252C | Grindavik</div>
+                <div class="gridlines one-min"></div>
+                <div class="gridlines two-min"></div>
+                <div class="gridlines three-min"></div>
+                <div class="gridlines four-min"></div>
+                <div class="gridlines five-min"></div>
+                <div class="five-min-label">5 min ago</div>
+                <div class="gridlines six-min"></div>
+                <div class="gridlines seven-min"></div>
+                <div class="gridlines eight-min"></div>
+                <div class="gridlines nine-min"></div>
+
+            </div>
+            <div class="box">
+                <iframe id="R5D8E" class="video shake shake-last"
+                    src="https://dataview.raspberryshake.org/#/embed/AM/R5D8E/00/EHZ" allow="autoplay; encrypted-media"
+                    allowfullscreen></iframe>
+                <div class="label">R5D8E | Þorbjörn</div>
+                <div class="gridlines one-min"></div>
+                <div class="gridlines two-min"></div>
+                <div class="gridlines three-min"></div>
+                <div class="gridlines four-min"></div>
+                <div class="gridlines five-min"></div>
+                <div class="five-min-label">5 min ago</div>
+                <div class="gridlines six-min"></div>
+                <div class="gridlines seven-min"></div>
+                <div class="gridlines eight-min"></div>
+                <div class="gridlines nine-min"></div>
+            </div>
+        </div>
+        <div class="alert-overlay" id="alertOverlay"></div>
+        <audio id="quakeAlertAudio" src="assets/earthquake-alert-2.mp3" preload="auto"></audio>
     </div>
+    <!-- button class="test-button" onclick="simulateNewEarthquake()">Test Alert</button-->
+    <div class="current-time"><span class="time-label">Iceland time</span>
+        <div id="currentTime"></div>
+    </div>
+
     <script>
-        const elevenLabsApiKey = '63cce0e2baafee87e3b2d067ce33a4e4';
-        const voiceId = 'WLKp2jV6nrS8aMkPPDRO'; // Voice ID for Australian Charlie
+        const minLat = 63.8;
+        const maxLat = 63.9;
+        const minLon = -22.5;
+        const maxLon = -22.35;
+        const quakesContainerId = 'quakes';
+        const geoapifyApiKey = 'fe520527fd824957b7ff4ca2ede7f36a'; // Your Geoapify API key
+        let lastQuakeTime = parseInt(localStorage.getItem('lastQuakeTime')) || 0; // Retrieve last quake time from localStorage
 
-        // Function to calculate the distance between two coordinates using the Haversine formula
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of the Earth in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in km
-            return distance;
-        }
+        // Function to fetch earthquake data
+        async function fetchEarthquakeData() {
+            try {
+                const response = await fetch('https://vafri.is/quake/list/index.js');
+                const textData = await response.text();
 
-        // Function to calculate the bearing between two coordinates
-        function calculateBearing(lat1, lon1, lat2, lon2) {
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
-            const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
-                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
-            const bearing = Math.atan2(y, x) * 180 / Math.PI;
-            const normalizedBearing = (bearing + 360) % 360; // Normalize to 0-360 degrees
-            return normalizedBearing;
-        }
+                // Extract the data inside the `quakes` variable
+                const dataMatch = textData.match(/var quakes = (.*);/);
+                if (dataMatch && dataMatch[1]) {
+                    const quakesData = dataMatch[1];
 
-        // Function to convert bearing to cardinal direction
-        function bearingToCardinal(bearing) {
-            const directions = ['north', 'north-northeast', 'northeast', 'east-northeast', 'east', 'east-southeast', 'southeast', 'south-southeast', 'south', 'south-southwest', 'southwest', 'west-southwest', 'west', 'west-northwest', 'northwest', 'north-northwest'];
-            const index = Math.round(bearing / 22.5);
-            const direction = directions[index % 16];
-            return direction;
-        }
-
-        // Function to convert numbers to words
-        function numberToWords(num) {
-            const a = [
-                '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
-            ];
-            const b = [
-                '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
-            ];
-            if (num < 20) return a[num];
-            if (num < 100) return b[Math.floor(num / 10)] + (num % 10 > 0 ? ' ' + a[num % 10] : '');
-            return num.toString(); // For simplicity, only handle numbers up to 99
-        }
-
-        // Function to convert distance to words
-        function distanceToWords(distance) {
-            if (distance < 1) {
-                const meters = Math.round(distance * 1000);
-                const distanceWords = `${numberToWords(meters)} meters`;
-                return distanceWords;
-            } else {
-                const kilometers = distance.toFixed(1); // Use one decimal point
-                const parts = kilometers.split('.');
-                const whole = numberToWords(parseInt(parts[0]));
-                const fraction = numberToWords(parseInt(parts[1]));
-                const distanceWords = `${whole} point ${fraction} kilometers`;
-                return distanceWords;
+                    // Parse the extracted data
+                    const parsedData = JSON.parse(quakesData);
+                    console.log('Parsed Data:', parsedData); // Debugging: Log the parsed data
+                    return Object.values(parsedData); // Convert the parsed object to an array
+                } else {
+                    throw new Error('Failed to extract earthquake data');
+                }
+            } catch (error) {
+                console.error('Error fetching earthquake data:', error);
+                return [];
             }
         }
 
-        // Function to get place info and display it
-        function displayPlaceInfo(lat, lon) {
-            const referencePoints = [
-                { name: 'the Blue Lagoon', lat: 63.879, lon: -22.451 },
-                { name: 'Grindavik', lat: 63.8424, lon: -22.4331 }
-            ];
+        // Function to filter earthquakes based on area settings
+        function filterEarthquakes(data) {
+            return data.filter(quake => {
+                const lat = parseFloat(quake.lat);
+                const lon = parseFloat(quake.lon);
+                return lat >= minLat && lat <= maxLat && lon >= minLon && lon <= maxLon;
+            });
+        }
 
-            let closestPoint = referencePoints[0];
-            let minDistance = calculateDistance(lat, lon, referencePoints[0].lat, referencePoints[0].lon);
+        // Function to create a map image URL with a location marker
+        function createMapImageUrl(lat, lon) {
+            return `https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=600&height=400&center=lonlat:${lon},${lat}&zoom=10&marker=lonlat:${lon},${lat};color:%23ff0000;size:medium&apiKey=${geoapifyApiKey}`;
+        }
 
-            for (const point of referencePoints) {
-                const distance = calculateDistance(lat, lon, point.lat, point.lon);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestPoint = point;
+        // Function to format the quake time
+        function formatQuakeTime(unixTime) {
+            const options = {
+                timeZone: 'Atlantic/Reykjavik',
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false, // Use 24-hour format
+            };
+            const quakeDate = new Date(unixTime * 1000);
+            const formattedDate = quakeDate.toLocaleString('en-US', options);
+
+            // Split date and time components and rearrange them
+            const [date, time] = formattedDate.split(', ');
+            const [month, day, year] = date.split('/');
+            const formattedTime = `${time.replace(/\b0/g, '')} - ${day}/${month}/${year}`;
+
+            return formattedTime;
+        }
+
+        // Function to update the quakes container with the last quake information
+        function updateQuakesContainer(quake, isNew) {
+            const quakesContainer = document.getElementById(quakesContainerId);
+            if (!quakesContainer) return;
+
+            const quakeTime = formatQuakeTime(quake.time);
+            const magnitudeUnit = quake.magnitude_type === 'autmag' ? 'aM' : 'mlw';
+            const quakeInfo = `
+                <div class="quake-info ${isNew ? 'new-quake' : 'last-quake'}">
+                    <div class="quake-text">
+                        <h2>${isNew ? 'NEW quake' : 'Last quake'}</h2>
+                        <p><strong>Time:</strong> ${quakeTime}</p>
+                        <p><strong>Magnitude:</strong> ${quake.magnitude} ${magnitudeUnit}</p>
+                        <p><strong>Depth:</strong> ${quake.depth} km</p>
+                        <p><strong>Location:</strong> (${quake.lat}, ${quake.lon})</p>
+                    </div>
+                    <div class="quake-map">
+                        <img src="${createMapImageUrl(quake.lat, quake.lon)}" alt="Map showing earthquake location" />
+                    </div>
+                </div>
+            `;
+
+            quakesContainer.innerHTML = quakeInfo;
+        }
+
+        // Function to check if the quake is new
+        function isNewQuake(quake) {
+            const quakeTime = new Date(quake.time * 1000);
+            const currentTime = new Date();
+            const timeDiff = (currentTime - quakeTime) / 1000 / 60; // Time difference in minutes
+            return timeDiff <= 1;
+        }
+
+        // Function to play the earthquake alert audio
+        function playEarthquakeAlert() {
+            const audioElement = document.getElementById('quakeAlertAudio');
+            if (audioElement) {
+                audioElement.play().catch(error => {
+                    console.error('Error playing audio:', error);
+                });
+            }
+        }
+
+        // Fetch and process earthquake data on page load
+        window.addEventListener('load', async function () {
+            await checkForNewQuakes();
+        });
+
+        // Function to check for new quakes
+        async function checkForNewQuakes() {
+            const earthquakeData = await fetchEarthquakeData();
+            const filteredData = filterEarthquakes(earthquakeData);
+            console.log('Filtered Data:', filteredData); // Debugging: Log the filtered data
+            if (filteredData.length > 0) {
+                // Sort the filtered data by time in descending order
+                filteredData.sort((a, b) => b.time - a.time);
+                const latestQuake = filteredData[0]; // Get the latest quake
+                console.log('Latest Quake:', latestQuake); // Debugging: Log the latest quake
+                const isNew = isNewQuake(latestQuake);
+
+                // Check if this quake is newer than the last recorded quake
+                if (latestQuake.time > lastQuakeTime) {
+                    updateQuakesContainer(latestQuake, true);
+                    playEarthquakeAlert();
+                    lastQuakeTime = latestQuake.time; // Update last quake time
+                    localStorage.setItem('lastQuakeTime', lastQuakeTime); // Store last quake time in localStorage
+                } else {
+                    updateQuakesContainer(latestQuake, false);
                 }
             }
-
-            const bearing = calculateBearing(lat, lon, closestPoint.lat, closestPoint.lon);
-            const cardinalDirection = bearingToCardinal(bearing);
-
-            const distanceText = distanceToWords(minDistance);
-
-            const placeInfo = `Hey! Looks like there's a new quake about ${distanceText} ${cardinalDirection} of ${closestPoint.name}.`;
-            document.getElementById('place-info').innerText = placeInfo;
-
-            // Send the text to Eleven Labs API and play the audio
-            sendToElevenLabs(placeInfo);
         }
 
-        // Function to send text to Eleven Labs API
-        async function sendToElevenLabs(text) {
-            const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'audio/mpeg',
-                    'Content-Type': 'application/json',
-                    'xi-api-key': elevenLabsApiKey
-                },
-                body: JSON.stringify({
-                    text: text,
-                    voice_id: voiceId,
-                    model_id: 'eleven_monolingual_v1',
-                    voice_settings: {
-                        stability: 0.5,
-                        similarity_boost: 0.5
-                    }
-                })
-            });
+        // Optionally, you can set an interval to check for new earthquakes periodically
+        setInterval(async function () {
+            await checkForNewQuakes();
+        }, 10000); // Check every 10 seconds
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const audioUrl = URL.createObjectURL(blob);
-                playAudio(audioUrl);
-            } else {
-                const errorData = await response.json();
-                console.error('Error in Eleven Labs API request:', response.status, response.statusText, errorData);
+        // Function to update the current time display in Iceland timezone
+        function updateTime() {
+            const now = new Date();
+            const options = { timeZone: 'Atlantic/Reykjavik', hour12: false };
+            const timeString = now.toLocaleTimeString('en-US', options);
+            document.getElementById('currentTime').innerText = timeString;
+        }
+
+        // Update the current time every second
+        setInterval(updateTime, 1000);
+    </script>
+    <script>
+        // Function to fetch and populate video data from an external JSON file
+        async function fetchAndPopulateVideos() {
+            try {
+                // Fetch the JSON file from the scripts folder
+                const response = await fetch('scripts/video-list.json');
+                const videoData = await response.json();
+
+                const leftColumn = document.querySelector('.left-column');
+                leftColumn.innerHTML = ''; // Clear any existing content
+
+                videoData.forEach(video => {
+                    const videoBox = document.createElement('div');
+                    videoBox.className = 'box';
+                    videoBox.innerHTML = `
+                        <iframe class="video"
+                            src="https://www.youtube.com/embed/${video.embedCode}?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        <div class="label">${video.label}</div>
+                    `;
+                    leftColumn.appendChild(videoBox);
+                });
+            } catch (error) {
+                console.error('Error fetching video data:', error);
             }
         }
 
-        // Function to play the audio from the provided URL
-        function playAudio(url) {
-            const audio = new Audio(url);
-            audio.autoplay = true;
-            audio.play().catch(error => console.error('Error playing audio:', error));
-        }
-
-        // Example coordinates (63.867, -22.425)
-        displayPlaceInfo(63.887, -22.325);
+        // Populate videos on page load
+        window.addEventListener('load', function () {
+            fetchAndPopulateVideos();
+        });
     </script>
+
 </body>
 
 </html>

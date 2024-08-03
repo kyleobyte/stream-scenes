@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distance and Direction Calculation with Text-to-Speech</title>
+</head>
+
+<body>
+    <div>
+        <p id="place-info"></p>
+    </div>
+    <script>
+        const elevenLabsApiKey = '63cce0e2baafee87e3b2d067ce33a4e4';
+        const voiceId = 'WLKp2jV6nrS8aMkPPDRO'; // Voice ID for Australian Charlie
+
+        // Function to calculate the distance between two coordinates using the Haversine formula
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in km
+            return distance;
+        }
+
+        // Function to calculate the bearing between two coordinates
+        function calculateBearing(lat1, lon1, lat2, lon2) {
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+            const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+            const bearing = Math.atan2(y, x) * 180 / Math.PI;
+            const normalizedBearing = (bearing + 360) % 360; // Normalize to 0-360 degrees
+            return normalizedBearing;
+        }
+
+        // Function to convert bearing to cardinal direction
+        function bearingToCardinal(bearing) {
+            const directions = ['north', 'north-northeast', 'northeast', 'east-northeast', 'east', 'east-southeast', 'southeast', 'south-southeast', 'south', 'south-southwest', 'southwest', 'west-southwest', 'west', 'west-northwest', 'northwest', 'north-northwest'];
+            const index = Math.round(bearing / 22.5);
+            const direction = directions[index % 16];
+            return direction;
+        }
+
+        // Function to convert numbers to words
+        function numberToWords(num) {
+            const a = [
+                '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+            ];
+            const b = [
+                '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+            ];
+            if (num < 20) return a[num];
+            if (num < 100) return b[Math.floor(num / 10)] + (num % 10 > 0 ? ' ' + a[num % 10] : '');
+            return num.toString(); // For simplicity, only handle numbers up to 99
+        }
+
+        // Function to convert distance to words
+        function distanceToWords(distance) {
+            if (distance < 1) {
+                const meters = Math.round(distance * 1000);
+                const distanceWords = `${numberToWords(meters)} meters`;
+                return distanceWords;
+            } else {
+                const kilometers = distance.toFixed(1); // Use one decimal point
+                const parts = kilometers.split('.');
+                const whole = numberToWords(parseInt(parts[0]));
+                const fraction = numberToWords(parseInt(parts[1]));
+                const distanceWords = `${whole} point ${fraction} kilometers`;
+                return distanceWords;
+            }
+        }
+
+        // Function to get place info and display it
+        function displayPlaceInfo(lat, lon) {
+            const referencePoints = [
+                { name: 'the Blue Lagoon', lat: 63.879, lon: -22.451 },
+                { name: 'Grindavik', lat: 63.8424, lon: -22.4331 }
+            ];
+
+            let closestPoint = referencePoints[0];
+            let minDistance = calculateDistance(lat, lon, referencePoints[0].lat, referencePoints[0].lon);
+
+            for (const point of referencePoints) {
+                const distance = calculateDistance(lat, lon, point.lat, point.lon);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point;
+                }
+            }
+
+            const bearing = calculateBearing(lat, lon, closestPoint.lat, closestPoint.lon);
+            const cardinalDirection = bearingToCardinal(bearing);
+
+            const distanceText = distanceToWords(minDistance);
+
+            const placeInfo = `Hey! Looks like there's a new quake about ${distanceText} ${cardinalDirection} of ${closestPoint.name}.`;
+            document.getElementById('place-info').innerText = placeInfo;
+
+            // Send the text to Eleven Labs API and play the audio
+            sendToElevenLabs(placeInfo);
+        }
+
+        // Function to send text to Eleven Labs API
+        async function sendToElevenLabs(text) {
+            const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': elevenLabsApiKey
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice_id: voiceId,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                })
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+                playAudio(audioUrl);
+            } else {
+                const errorData = await response.json();
+                console.error('Error in Eleven Labs API request:', response.status, response.statusText, errorData);
+            }
+        }
+
+        // Function to play the audio from the provided URL
+        function playAudio(url) {
+            const audio = new Audio(url);
+            audio.autoplay = true;
+            audio.play().catch(error => console.error('Error playing audio:', error));
+        }
+
+        // Example coordinates (63.867, -22.425)
+        displayPlaceInfo(63.887, -22.325);
+    </script>
+</body>
+
+</html>
