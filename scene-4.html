@@ -486,7 +486,7 @@
     </script>
     <script>
         // Object to store current video data for comparison
-        let currentVideoData = {};
+        let currentVideoData = [];
 
         // Function to fetch and populate video data from the JSON file
         async function fetchAndPopulateVideos() {
@@ -499,46 +499,63 @@
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
 
-                const videoData = await response.json();
+                const newVideoData = await response.json();
 
-                // Check for changes in video data
-                updateChangedVideos(videoData);
+                // Update videos if there are any changes
+                updateVideosIfChanged(newVideoData);
 
             } catch (error) {
                 console.error('Error fetching video data:', error);
             }
         }
 
-        // Function to update only the changed videos
-        function updateChangedVideos(newVideoData) {
+        // Function to update videos only if there are changes
+        function updateVideosIfChanged(newVideoData) {
             const leftColumn = document.querySelector('.left-column');
 
-            newVideoData.forEach((newVideo, index) => {
-                // If the video is different from the current video data, update it
-                if (currentVideoData[index]?.embedCode !== newVideo.embedCode || currentVideoData[index]?.label !== newVideo.label) {
-                    // Find the video container
-                    let videoBox = leftColumn.querySelector(`.box[data-index='${index}']`);
+            // Check if the data length is different
+            if (newVideoData.length !== currentVideoData.length) {
+                rebuildVideoList(newVideoData);
+                return;
+            }
 
-                    if (!videoBox) {
-                        // Create a new video box if it doesn't exist
-                        videoBox = document.createElement('div');
-                        videoBox.className = 'box';
-                        videoBox.dataset.index = index;
-                        leftColumn.appendChild(videoBox);
-                    }
-
-                    // Update the video box content
-                    videoBox.innerHTML = `
-                    <iframe class="video"
-                        src="https://www.youtube.com/embed/${newVideo.embedCode}?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
-                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                    <div class="label">${newVideo.label}</div>
-                `;
-                }
+            // Check if any video has changed
+            const hasChanges = newVideoData.some((newVideo, index) => {
+                const currentVideo = currentVideoData[index];
+                return (
+                    currentVideo.embedCode !== newVideo.embedCode ||
+                    currentVideo.label !== newVideo.label
+                );
             });
 
-            // Update the current video data for future comparisons
-            currentVideoData = newVideoData;
+            // If there are changes, rebuild the video list
+            if (hasChanges) {
+                rebuildVideoList(newVideoData);
+            }
+        }
+
+        // Function to rebuild the video list
+        function rebuildVideoList(videoData) {
+            const leftColumn = document.querySelector('.left-column');
+            leftColumn.innerHTML = ''; // Clear existing content
+
+            videoData.forEach((video, index) => {
+                const videoBox = document.createElement('div');
+                videoBox.className = 'box';
+                videoBox.dataset.index = index;
+                videoBox.innerHTML = `
+                <iframe class="video"
+                    src="https://www.youtube.com/embed/${video.embedCode}?rel=0&amp;controls=1&amp;amp;showinfo=0&amp;modestbranding=1&autoplay=1&mute=1&controls=0&showinfo=0&rel=0"
+                    allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <div class="label">${video.label}</div>
+            `;
+                leftColumn.appendChild(videoBox);
+            });
+
+            // Update the current video data
+            currentVideoData = videoData;
+
+            console.log('Video list updated successfully!');
         }
 
         // Initial population of videos on page load
@@ -549,6 +566,7 @@
             setInterval(fetchAndPopulateVideos, 60000); // 60000 milliseconds = 60 seconds
         });
     </script>
+
 
 
 </body>
