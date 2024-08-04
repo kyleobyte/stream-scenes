@@ -16,12 +16,8 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-image: linear-gradient(45deg, #ffe26d, #ffb957, #f8904f, #e96751, #d23e58, #b52d55, #981d50, #7a1048, #5c1335, #3f1225, #230e16, #000000);
+            background-color: black;
         }
-
-
-
-
 
         .container {
             width: calc(100vw - 40px);
@@ -47,12 +43,11 @@
         .right-column {
             display: flex;
             flex-wrap: wrap;
-            width: calc(33% - 10px);
+            width: calc(50% - 10px);
         }
 
         .left-column {
             margin-right: 10px;
-            width: calc(66% - 10px);
         }
 
         .right-column {
@@ -98,10 +93,9 @@
 
         .video {
             width: 110%;
-            height: 148%;
-            margin-top: -40px;
+            height: 110%;
+            margin: -20px;
             border: 0;
-            margin-left: -9px;
         }
 
         .label {
@@ -133,7 +127,12 @@
 
         .quake-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            /* Centers horizontally */
+            align-items: center;
+            /* Centers vertically */
+            height: 100%;
+            /* Assuming this is needed */
             background-color: #000;
             color: white;
             border-radius: 10px;
@@ -158,10 +157,7 @@
         }
 
         .quake-text {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-left: 30px;
+            margin-left: 10%;
         }
 
         .quake-map {
@@ -196,6 +192,7 @@
             border-radius: 10px;
         }
 
+
         .shake {
             margin-top: -62px;
             width: 118%;
@@ -207,22 +204,18 @@
 
         .current-time {
             position: absolute;
-            top: 53px;
+            top: 35px;
             left: 50%;
             transform: translate(-50%, -50%);
             color: rgb(0, 0, 0);
             font-size: 26px;
             font-family: "Open Sans", sans-serif;
             font-weight: 800;
-            background-color: #d23e58;
+            background-color: rgb(255, 255, 255);
             padding: 0px 20px 10px;
             border-radius: 0px 0px 10px 10px;
             text-align: center;
             min-width: 120px;
-        }
-
-        #currentTime {
-            margin-bottom: -10px;
         }
 
         .time-label {
@@ -342,7 +335,6 @@
     <!-- button class="test-button" onclick="simulateNewEarthquake()">Test Alert</button-->
     <div class="current-time"><span class="time-label">Iceland time</span>
         <div id="currentTime"></div>
-        <span class="time-label" style="margin-top:-10px;">Currently erupting</span>
     </div>
 
     <script>
@@ -392,28 +384,50 @@
             return `https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=600&height=400&center=lonlat:${lon},${lat}&zoom=10&marker=lonlat:${lon},${lat};color:%23ff0000;size:medium&apiKey=${geoapifyApiKey}`;
         }
 
+
+
         // Function to format the quake time
         function formatQuakeTime(unixTime) {
             const options = {
                 timeZone: 'Atlantic/Reykjavik',
                 year: 'numeric',
                 month: 'numeric',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
+                day: '2-digit', // Ensure leading zero for single-digit days
+                hour: '2-digit', // Ensure leading zero for single-digit hours
+                minute: '2-digit', // Ensure leading zero for single-digit minutes
+                second: '2-digit', // Ensure leading zero for single-digit seconds
                 hour12: false, // Use 24-hour format
             };
+
             const quakeDate = new Date(unixTime * 1000);
-            const formattedDate = quakeDate.toLocaleString('en-US', options);
 
-            // Split date and time components and rearrange them
-            const [date, time] = formattedDate.split(', ');
-            const [month, day, year] = date.split('/');
-            const formattedTime = `${time.replace(/\b0/g, '')} - ${day}/${month}/${year}`;
+            let formattedDate = quakeDate.toLocaleString('en-US', options);
+            let [date, time] = formattedDate.split(', ');
 
-            return formattedTime;
+            // Split date into month, day, year
+            let [month, day, year] = date.split('/');
+            day = parseInt(day, 10); // Remove leading zero from day
+
+            // Split time into hour, minute, second
+            let [hour, minute, second] = time.split(':');
+
+            // Remove leading zero from hour but keep 00 if needed
+            hour = hour === '00' ? '00' : parseInt(hour, 10);
+
+            // Format time and date
+            const formattedTime = `${hour}:${minute}:${second}`;
+            const formattedDateText = `${day}/${month}/${year}`;
+
+            return `${formattedTime} - ${formattedDateText}`;
         }
+
+
+
+
+
+
+
+
 
         // Function to update the quakes container with the last quake information
         function updateQuakesContainer(quake, isNew) {
