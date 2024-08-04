@@ -16,8 +16,12 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-color: black;
+            background-image: linear-gradient(45deg, #ffe26d, #ffb957, #f8904f, #e96751, #d23e58, #b52d55, #981d50, #7a1048, #5c1335, #3f1225, #230e16, #000000);
         }
+
+
+
+
 
         .container {
             width: calc(100vw - 40px);
@@ -43,11 +47,12 @@
         .right-column {
             display: flex;
             flex-wrap: wrap;
-            width: calc(50% - 10px);
+            width: calc(33% - 10px);
         }
 
         .left-column {
             margin-right: 10px;
+            width: calc(66% - 10px);
         }
 
         .right-column {
@@ -93,9 +98,10 @@
 
         .video {
             width: 110%;
-            height: 110%;
-            margin: -20px;
+            height: 148%;
+            margin-top: -40px;
             border: 0;
+            margin-left: -9px;
         }
 
         .label {
@@ -131,9 +137,9 @@
             background-color: #000;
             color: white;
             border-radius: 10px;
-            padding: 20px;
             box-sizing: border-box;
             font-family: "Open Sans", sans-serif;
+            height: 100%;
         }
 
         .quake-info.new-quake {
@@ -152,18 +158,26 @@
         }
 
         .quake-text {
-            padding-right: 10px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-left: 60px;
+            margin-left: 30px;
         }
 
         .quake-map {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: -20px;
+            /* margin: -20px; */
+            height: 110%;
+            background-size: cover;
+            background-position-x: center;
+            border: radius 10px;
+        }
+
+        .quake-map-container {
+            height: 100%;
+            width: 50%;
         }
 
         .quake-info h2 {
@@ -193,18 +207,22 @@
 
         .current-time {
             position: absolute;
-            top: 35px;
+            top: 53px;
             left: 50%;
             transform: translate(-50%, -50%);
             color: rgb(0, 0, 0);
             font-size: 26px;
             font-family: "Open Sans", sans-serif;
             font-weight: 800;
-            background-color: rgb(255, 255, 255);
+            background-color: #d23e58;
             padding: 0px 20px 10px;
             border-radius: 0px 0px 10px 10px;
             text-align: center;
             min-width: 120px;
+        }
+
+        #currentTime {
+            margin-bottom: -10px;
         }
 
         .time-label {
@@ -324,6 +342,7 @@
     <!-- button class="test-button" onclick="simulateNewEarthquake()">Test Alert</button-->
     <div class="current-time"><span class="time-label">Iceland time</span>
         <div id="currentTime"></div>
+        <span class="time-label" style="margin-top:-10px;">Currently erupting</span>
     </div>
 
     <script>
@@ -412,9 +431,8 @@
                         <p><strong>Depth:</strong> ${quake.depth} km</p>
                         <p><strong>Location:</strong> (${quake.lat}, ${quake.lon})</p>
                     </div>
-                    <div class="quake-map">
-                        <img src="${createMapImageUrl(quake.lat, quake.lon)}" alt="Map showing earthquake location" />
-                    </div>
+                    <div class="quake-map-container">
+                    <div class="quake-map" style="background-image:url(${createMapImageUrl(quake.lat, quake.lon)});"></div>
                 </div>
             `;
 
@@ -471,7 +489,7 @@
         // Optionally, you can set an interval to check for new earthquakes periodically
         setInterval(async function () {
             await checkForNewQuakes();
-        }, 10000); // Check every 10 seconds
+        }, 100000000); // Check every 10 seconds
 
         // Function to update the current time display in Iceland timezone
         function updateTime() {
