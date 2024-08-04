@@ -388,37 +388,31 @@
 
         // Function to format the quake time
         function formatQuakeTime(unixTime) {
-            const options = {
-                timeZone: 'Atlantic/Reykjavik',
-                year: 'numeric',
-                month: 'numeric',
-                day: '2-digit', // Ensure leading zero for single-digit days
-                hour: '2-digit', // Ensure leading zero for single-digit hours
-                minute: '2-digit', // Ensure leading zero for single-digit minutes
-                second: '2-digit', // Ensure leading zero for single-digit seconds
-                hour12: false, // Use 24-hour format
-            };
-
             const quakeDate = new Date(unixTime * 1000);
 
-            let formattedDate = quakeDate.toLocaleString('en-US', options);
-            let [date, time] = formattedDate.split(', ');
+            // Get UTC components
+            const year = quakeDate.getUTCFullYear();
+            const month = quakeDate.getUTCMonth() + 1; // Months are zero-based
+            const day = quakeDate.getUTCDate();
+            const hours = quakeDate.getUTCHours();
+            const minutes = quakeDate.getUTCMinutes();
+            const seconds = quakeDate.getUTCSeconds();
 
-            // Split date into month, day, year
-            let [month, day, year] = date.split('/');
-            day = parseInt(day, 10); // Remove leading zero from day
+            // Remove leading zeros from day
+            const formattedDay = day;
 
-            // Split time into hour, minute, second
-            let [hour, minute, second] = time.split(':');
+            // Remove leading zero from hours except for midnight
+            const formattedHours = hours === 0 ? '00' : hours;
 
-            // Remove leading zero from hour but keep 00 if needed
-            hour = hour === '00' ? '00' : parseInt(hour, 10);
+            // Format minutes and seconds with leading zeros
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
 
-            // Format time and date
-            const formattedTime = `${hour}:${minute}:${second}`;
-            const formattedDateText = `${day}/${month}/${year}`;
+            // Construct the formatted time string
+            const formattedTime = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+            const formattedDate = `${formattedDay}/${month}/${year}`;
 
-            return `${formattedTime} - ${formattedDateText}`;
+            return `${formattedTime} - ${formattedDate}`;
         }
 
 
