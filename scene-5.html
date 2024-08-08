@@ -593,6 +593,29 @@
         });
     </script>
 
+    <script>
+        // Function to reload an iframe by its ID
+        function reloadIframeById(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe) {
+                const src = iframe.src;
+                iframe.src = ''; // Clear the src attribute to force reload
+                setTimeout(() => {
+                    iframe.src = src; // Reset the src attribute to the original value after a short delay
+                }, 100); // Delay of 100 milliseconds
+            }
+        }
+
+        // Set interval to reload the first iframe every 5 minutes (300000 milliseconds)
+        setInterval(() => reloadIframeById('R252C'), 300000); // Reload every 5 minutes
+
+        // Set a timeout to start reloading the second iframe after 2.5 minutes (150000 milliseconds), then every 5 minutes
+        setTimeout(() => {
+            reloadIframeById('R5D8E'); // Initial reload after 2.5 minutes
+            setInterval(() => reloadIframeById('R5D8E'), 300000); // Reload every 5 minutes
+        }, 150000); // Initial delay of 2.5 minutes
+    </script>
+
 
 
 </body>
