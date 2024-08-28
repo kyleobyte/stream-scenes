@@ -518,7 +518,7 @@
         async function fetchAndPopulateVideos() {
             try {
                 // Fetch the JSON file from GitHub Pages
-                const response = await fetch(`https://kyleobyte.github.io/stream-scenes/scripts/video-list.json?cache-bust=${new Date().getTime()}`);
+                const response = await fetch(`/scripts/video-list.json?cache-bust=${new Date().getTime()}`);
 
                 // Check if the response is OK (status 200)
                 if (!response.ok) {
