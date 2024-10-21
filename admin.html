@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Edit Videos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.delete {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Edit Video List</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Embed Code</th>
+                <th>Label</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="videoTableBody">
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+    </table>
+
+    <button id="addNewRowBtn">Add New Video</button>
+    <button id="saveChangesBtn">Save Changes</button>
+
+    <script>
+        let videoData = [];
+
+        // Fetch the current video list from JSON
+        async function fetchVideoList() {
+            try {
+                const response = await fetch(`/scripts/video-list.json?cache-bust=${new Date().getTime()}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                videoData = await response.json();
+                renderTable();
+            } catch (error) {
+                console.error('Error fetching video list:', error);
+            }
+        }
+
+        // Render the video list into the table
+        function renderTable() {
+            const tableBody = document.getElementById('videoTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            videoData.forEach((video, index) => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td><input type="text" value="${video.embedCode}" data-index="${index}" data-field="embedCode"></td>
+                    <td><input type="text" value="${video.label}" data-index="${index}" data-field="label"></td>
+                    <td><button class="delete" onclick="deleteRow(${index})">Delete</button></td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Add a new video row
+        function addNewRow() {
+            videoData.push({
+                embedCode: '',
+                label: ''
+            });
+            renderTable();
+        }
+
+        // Delete a video row
+        function deleteRow(index) {
+            videoData.splice(index, 1);
+            renderTable();
+        }
+
+        // Save changes by sending the updated data to the server (for now, just log it)
+        async function saveChanges() {
+            // Update videoData with the latest values from inputs
+            document.querySelectorAll('input').forEach(input => {
+                const index = input.dataset.index;
+                const field = input.dataset.field;
+                videoData[index][field] = input.value;
+            });
+
+            // Log the data (or send to backend)
+            console.log('Saving data:', JSON.stringify(videoData, null, 2));
+
+            // You would implement the logic to save this data to the backend or GitHub API here
+            alert('Changes saved (simulation).');
+        }
+
+        // Initialize the page
+        window.addEventListener('load', () => {
+            fetchVideoList();
+
+            document.getElementById('addNewRowBtn').addEventListener('click', addNewRow);
+            document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+        });
+    </script>
+</body>
+
+</html>
