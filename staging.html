@@ -9,6 +9,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
         rel="stylesheet">
+    <script>
+        // Simulate a user interaction as soon as the HTML loads
+        (function () {
+            // Create a hidden button element
+            const hiddenButton = document.createElement('button');
+            hiddenButton.style.display = 'none';
+            document.body.appendChild(hiddenButton);
+
+            // Simulate a click on the hidden button
+            const simulateClick = () => {
+                const event = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                hiddenButton.dispatchEvent(event);
+            };
+
+            // Execute the simulated click immediately after DOM loads
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(simulateClick, 200); // Short delay to ensure DOM is ready
+            });
+        })();
+    </script>
     <style>
         body,
         html {
